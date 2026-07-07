@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: letter; margin: 13mm 15mm; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; color: #15171d; font-size: 10.1pt; line-height: 1.4; margin: 0; }
+  h1 { font-size: 21pt; margin: 0; letter-spacing: -0.5px; }
+  h1 .dot { color: #4f46e5; }
+  h2 { font-size: 11.5pt; margin: 15px 0 5px; padding-bottom: 3px; border-bottom: 2px solid #e7e9f0; color: #312e81; display: flex; align-items: center; gap: 7px; }
+  h2 .n { font-family: "SF Mono", Consolas, monospace; font-size: 8pt; background: #312e81; color: #fff; border-radius: 4px; padding: 1px 5px; }
+  .sub { color: #565c68; font-size: 9.6pt; margin: 3px 0 0; }
+  .right { float: right; text-align: right; color: #7a8088; font-size: 8.5pt; letter-spacing: 0.6px; }
+  .right b { color: #312e81; letter-spacing: 1px; }
+  .lead { font-size: 11pt; margin: 12px 0 6px; }
+  .links { font-family: "SF Mono", Consolas, monospace; font-size: 8.8pt; color: #565c68; margin: 4px 0 2px; }
+  .links b { color: #0a7ea4; }
+  .pill { display: inline-block; background: #eef2fe; color: #312e81; border: 1px solid #c7d2fe; border-radius: 10px; padding: 1px 8px; font-size: 8pt; font-weight: 600; margin-left: 4px; }
+  p { margin: 5px 0; }
+  code, .mono { font-family: "SF Mono", "Cascadia Code", Consolas, monospace; font-size: 8.6pt; background: #f2f4f8; padding: 1px 4px; border-radius: 3px; }
+  .accent { color: #312e81; font-weight: 700; }
+  ul { margin: 4px 0; padding-left: 17px; } li { margin: 2px 0; }
+  .diagram { font-family: "SF Mono", Consolas, monospace; font-size: 8.1pt; line-height: 1.3; background: #0a0a14; color: #d6def5; padding: 10px 12px; border-radius: 7px; white-space: pre; margin: 7px 0; }
+  .diagram b { color: #a5b4fc; }
+  .cards { display: flex; gap: 8px; margin: 7px 0; }
+  .card { flex: 1; border: 1px solid #dfe3ea; border-radius: 6px; padding: 7px 9px; font-size: 8.8pt; }
+  .card .tag { font-weight: 700; font-size: 7.6pt; letter-spacing: 0.5px; border-radius: 4px; padding: 1px 6px; }
+  .st { background: #e6f7ef; } .st .tag { background: #137a3e; color: #fff; }
+  .su { background: #fef3da; } .su .tag { background: #d97706; color: #fff; }
+  .de { background: #eef1f5; } .de .tag { background: #64748b; color: #fff; }
+  .tags { margin: 6px 0; } .tags span { display: inline-block; background: #f2f4f8; border: 1px solid #e2e6ee; border-radius: 5px; padding: 1px 7px; font-size: 8pt; margin: 2px 3px 2px 0; font-family: "SF Mono", Consolas, monospace; }
+  .quote { border-left: 3px solid #4f46e5; background: #f8f8ff; padding: 6px 10px; margin: 6px 0; font-size: 9pt; }
+  .quote .q { font-style: italic; color: #312e81; }
+  table { border-collapse: collapse; width: 100%; margin: 5px 0; font-size: 9pt; }
+  td { border: 1px solid #dfe3ea; padding: 4px 8px; vertical-align: top; }
+  td.k { background: #f4f4fc; font-weight: 600; width: 26%; }
+  .foot { margin-top: 12px; padding-top: 6px; border-top: 1px solid #e7e9f0; color: #565c68; font-size: 8.5pt; }
+  .ok { color: #137a3e; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="right"><b>JUDGES' TECHNICAL BRIEF</b><br>Qwen Cloud Global AI Hackathon · Track 1: MemoryAgent · ~3-min read</div>
+<h1>engram<span class="dot">.</span></h1>
+<p class="sub">A memory engine for AI agents.<span class="pill">MemoryAgent</span></p>
+
+<p class="lead">Engram decides what an agent should <span class="accent">remember</span>, what to <span class="accent">recall under a hard token budget</span>, what to <span class="accent">forget on schedule</span>, and what to <span class="accent">stop believing</span> when new information contradicts old.</p>
+<p class="links">LIVE <b>engram.orionbot.online</b> &nbsp;·&nbsp; REPO <b>github.com/OrionArchitekton/engram</b> (MIT) &nbsp;·&nbsp; VIDEO <b>see Devpost submission</b></p>
+
+<h2><span class="n">01</span> The problem</h2>
+<p>Agents forget everything between sessions, or "solve" it by stuffing the whole transcript into context: cost grows without bound, stale facts linger forever, and contradictory facts coexist with equal confidence. The track brief names the three hard parts, and most memory demos ship only the first: efficient storage and retrieval, <em>timely forgetting</em>, and <em>recall within limited context windows</em>. Engram implements all three, and makes every decision observable.</p>
+
+<h2><span class="n">02</span> One turn through the engine</h2>
+<div class="diagram">Browser / MCP client   <b>Next.js 15 + MCP stdio server (same engine, same store)</b>
+   │  POST /api/chat { sessionId, message }      (rate-limited, key server-side)
+   ▼
+<b>1. Decay sweep</b>     retention = 0.5^(age / half-life(type) x importance) &lt; 0.05 → decayed (never deleted)
+<b>2. Recall</b>          score = 0.5 sim + 0.2 retention + 0.2 importance + 0.1 frequency
+                   greedy-packed under a HARD 800-token budget (property-tested: never over)
+<b>3. Answer</b>          qwen3.7-plus, temperature 0, recalled memories in system prompt
+<b>4. Write</b>           LLM importance gate → nearest neighbors ≥ 0.45 sim → qwen3.7-plus
+                   adjudicates conflict vs compatible → old fact SUPERSEDED with audit pointer
+   ▼
+<b>SQLite</b>  content · 256-dim text-embedding-v4 vector · type · importance · access · status</div>
+
+<h2><span class="n">03</span> The differentiator: forgetting and truth maintenance</h2>
+<p>Selection is table stakes; the two behaviors most memory agents skip are the ones you can watch live on Engram's memory board:</p>
+<div class="cards">
+  <div class="card de"><span class="tag">DECAYED</span><br>An unused low-importance episode falls below the retention floor and silently leaves recall. Preserved for audit, never deleted.</div>
+  <div class="card su"><span class="tag">SUPERSEDED</span><br>"I just moved to Denver" retires "I live in San Diego": LLM-adjudicated, pointer to the replacement, verified live.</div>
+  <div class="card st"><span class="tag">NOT STORED</span><br>Questions and small talk score low importance and are deliberately not stored. The board shows the decision either way.</div>
+</div>
+
+<h2><span class="n">04</span> Engineering rigor</h2>
+<ul>
+  <li><span class="accent">67 unit tests, zero network.</span> The engine core is pure TypeScript with injected clock, embedder, and adjudicator. The budget packer carries a property-style test over 50 randomized pools: the selected set never exceeds the budget.</li>
+  <li><span class="accent">Fail-safe LLM plumbing.</span> Every model output that feeds a decision passes a defensive parser; a parser failure can never supersede a memory (defaults: importance 0.5, no conflict, no drafts). Temperature 0 everywhere.</li>
+  <li><span class="accent">Adversarially reviewed.</span> An independent review pass refuted 75 discrete claims in these materials against the code, tests, git history, and live probes; every finding was fixed or reworded, including a live-verified retune of the conflict-similarity gate.</li>
+  <li><span class="accent">MCP round-trip proven over the real protocol</span> (docs/submission/mcp-roundtrip.txt): remember → recall returns the same record through the spawned stdio server.</li>
+</ul>
+<div class="tags"><span>typescript</span><span>next.js 15</span><span>qwen3.7-plus</span><span>text-embedding-v4</span><span>sqlite</span><span>mcp</span><span>docker</span><span>alibaba function compute</span><span>vitest</span></div>
+
+<h2><span class="n">05</span> Honest demo, by construction</h2>
+<div class="quote"><span class="q">"Every reply, score, and event in the demo is a real output captured from live qwen3.7-plus + text-embedding-v4 calls through this app's own engine paths."</span> — README, Demo mode. The decay scene's seed memory is backdated (disclosed) because real retention decay needs weeks; the mechanism that fires is the production code path.</div>
+
+<h2><span class="n">06</span> Try it in 60 seconds</h2>
+<table>
+  <tr><td class="k">1. Open the live app</td><td>Tell it a preference: <code>I prefer TypeScript with strict mode.</code> Watch STORED land on the board.</td></tr>
+  <tr><td class="k">2. Start a new session</td><td>Click <code>+ new</code>, ask <code>Which language should I use?</code> The answer uses the memory; the board shows RECALLED with its score.</td></tr>
+  <tr><td class="k">3. Contradict yourself</td><td>Say <code>Actually, I now prefer Python.</code> The old preference flips to SUPERSEDED with a pointer to its replacement.</td></tr>
+</table>
+
+<p class="foot">Dan Mercede · dan@danmercede.com · Built with Claude Code as implementation copilot (Co-Authored-By trailers in git log) · MIT · Backend on Alibaba Cloud Function Compute (Singapore), models on Qwen Cloud (DashScope Intl).</p>
+
+</body>
+</html>

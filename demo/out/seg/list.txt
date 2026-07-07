@@ -1,7 +1,7 @@
 file '/home/orion/src/orion-estate/personal-brand/hackathons/engram/demo/out/seg/seg_0.ext.mp4'
 file '/home/orion/src/orion-estate/personal-brand/hackathons/engram/demo/out/seg/seg_1.ext.mp4'
 file '/home/orion/src/orion-estate/personal-brand/hackathons/engram/demo/out/seg/seg_2.ext.mp4'
-file '/home/orion/src/orion-estate/personal-brand/hackathons/engram/demo/out/seg/seg_3.ext.mp4'
+file '/home/orion/src/orion-estate/personal-brand/hackathons/engram/demo/out/seg/seg_3.mp4'
 file '/home/orion/src/orion-estate/personal-brand/hackathons/engram/demo/out/seg/seg_4.ext.mp4'
 file '/home/orion/src/orion-estate/personal-brand/hackathons/engram/demo/out/seg/seg_5.ext.mp4'
 file '/home/orion/src/orion-estate/personal-brand/hackathons/engram/demo/out/seg/seg_6.ext.mp4'
