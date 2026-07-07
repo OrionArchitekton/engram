@@ -35,8 +35,8 @@ function fakeAdjudicator(conflict: boolean) {
 }
 
 describe("CONFLICT_SIMILARITY_THRESHOLD", () => {
-  it("is 0.55", () => {
-    expect(CONFLICT_SIMILARITY_THRESHOLD).toBe(0.55);
+  it("is 0.45", () => {
+    expect(CONFLICT_SIMILARITY_THRESHOLD).toBe(0.45);
   });
 });
 
@@ -71,8 +71,8 @@ describe("findSuperseded (contradiction adjudication)", () => {
   });
 
   it("never sends a below-threshold memory to the adjudicator", async () => {
-    // cosine([1,0,0], [1,2,0]) ~= 0.447 < 0.55
-    const unrelated = mem({ content: "user owns a cat", embedding: [1, 2, 0] });
+    // cosine([1,0,0], [1,3,0]) ~= 0.316 < 0.45
+    const unrelated = mem({ content: "user owns a cat", embedding: [1, 3, 0] });
     const near = mem({ content: "user lives in San Diego", embedding: [1, 0, 0] });
     const { adjudicate, calls } = fakeAdjudicator(true);
     const result = await findSuperseded(
@@ -105,10 +105,10 @@ describe("findSuperseded (contradiction adjudication)", () => {
   });
 
   it("honors a custom threshold", async () => {
-    const far = mem({ content: "loosely related", embedding: [1, 2, 0] }); // ~0.447
+    const far = mem({ content: "loosely related", embedding: [1, 3, 0] }); // ~0.316
     const { adjudicate } = fakeAdjudicator(false);
     const result = await findSuperseded("new fact", [1, 0, 0], [far], adjudicate, {
-      threshold: 0.4,
+      threshold: 0.3,
     });
     expect(result.adjudicated).toBe(1);
   });

@@ -14,7 +14,7 @@ export type Adjudicator = (
  * Only candidates at/above this cosine similarity are adjudicated; anything
  * less similar cannot be a contradiction worth an LLM call.
  */
-export const CONFLICT_SIMILARITY_THRESHOLD = 0.55;
+export const CONFLICT_SIMILARITY_THRESHOLD = 0.45;
 
 export interface FindSupersededOptions {
   /** similarity cutoff for adjudication; defaults to CONFLICT_SIMILARITY_THRESHOLD */

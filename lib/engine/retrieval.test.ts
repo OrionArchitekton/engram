@@ -118,6 +118,13 @@ describe("recall (budget-bounded)", () => {
     expect(r.selected.map((s) => s.record.id)).toEqual([small.id]);
   });
 
+  it("recalls memories regardless of which session wrote them (cross-session)", () => {
+    const fromA = mem({ sessionId: "session-a", content: "preference from session a" });
+    const fromB = mem({ sessionId: "session-b", content: "fact from session b" });
+    const r = recall([fromA, fromB], [1, 0, 0], { budget: 1000, now: NOW });
+    expect(r.selected.map((s) => s.record.sessionId).sort()).toEqual(["session-a", "session-b"]);
+  });
+
   it("drops memories whose retention is below the forgetting floor", () => {
     const ancient = mem({
       importance: 0.05,

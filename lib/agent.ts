@@ -39,8 +39,11 @@ export const RECALL_BUDGET = Number(process.env.ENGRAM_RECALL_BUDGET || 800);
 /** Below this LLM-scored importance, a user statement is observed but not stored. */
 export const STORE_THRESHOLD = 0.3;
 
-const adjudicator = async (a: string, b: string) => {
-  const raw = await chat([{ role: "user", content: buildAdjudicationPrompt(a, b) }]);
+// Adjudicator receives (newContent, oldContent); the prompt takes (old, new).
+const adjudicator = async (newContent: string, oldContent: string) => {
+  const raw = await chat([
+    { role: "user", content: buildAdjudicationPrompt(oldContent, newContent) },
+  ]);
   return parseAdjudication(raw);
 };
 
@@ -176,6 +179,17 @@ export async function consolidateSession(
   const drafts = parseDistillation(raw);
   const events: MemoryEvent[] = [];
   for (const draft of drafts) {
+    if (draft.importance < STORE_THRESHOLD) {
+      events.push({
+        kind: "skipped",
+        memoryId: "",
+        content: draft.content,
+        type: draft.type,
+        score: draft.importance,
+        detail: `importance ${draft.importance.toFixed(2)} below ${STORE_THRESHOLD}`,
+      });
+      continue;
+    }
     events.push(
       ...(await writeMemory(store, draft.content, draft.type, draft.importance, sessionId, now)),
     );

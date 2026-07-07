@@ -25,7 +25,7 @@ All scenes are server-rendered frozen replays of REAL captured engine output
 
 ### SHOT skipped
 - target: dashboard
-- narration: Small talk scores low and is deliberately not stored. Every engine decision is visible, including the ones it declines to make.
+- narration: Questions and small talk score low and are deliberately not stored. Every engine decision is visible, including the ones it declines to make.
 - action: goto url="/?demo=1&scene=recall"
 - action: wait ms=600
 - action: highlight selector="[data-kind=skipped]"
@@ -46,6 +46,6 @@ All scenes are server-rendered frozen replays of REAL captured engine output
 
 ### SHOT outro
 - target: dashboard
-- narration: Sixty six unit tests, an MCP server so any agent can plug in, and the backend on Alibaba Cloud. Engram: memory that behaves like memory should.
+- narration: Sixty seven unit tests, an MCP server so any agent can plug in, and the backend on Alibaba Cloud. Engram: memory that behaves like memory should.
 - action: goto url="/?demo=1"
 - action: wait ms=900

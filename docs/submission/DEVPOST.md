@@ -50,7 +50,7 @@ Engram is a memory engine, not a chat log. For every turn:
 ## How we built it
 
 TypeScript end to end. The engine core (scoring, budget packer, decay, contradiction,
-consolidation parsing) is pure and dependency-injected: 66 unit tests run in
+consolidation parsing) is pure and dependency-injected: 67 unit tests run in
 milliseconds with zero network. Qwen Cloud powers everything model-side through the
 OpenAI-compatible endpoint: qwen3.7-plus for replies, importance scoring,
 contradiction adjudication, and session distillation; text-embedding-v4 for

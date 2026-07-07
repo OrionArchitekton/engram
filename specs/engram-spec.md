@@ -25,9 +25,9 @@ information conflicts with old).
 ### S2. Budget-bounded recall
 - Given more stored memories than fit in the recall budget,
 - When the agent assembles context for a turn,
-- Then it selects the highest-value subset whose combined token estimate is <= the hard
-  budget (never over), value = blend of semantic similarity, recency, importance, and
-  access frequency.
+- Then it greedily selects the highest-scoring memories that fit, so the combined
+  token estimate is <= the hard budget (never over); score = blend of semantic
+  similarity, recency, importance, and access frequency.
 
 ### S3. Timely forgetting
 - Given a memory that is old, low-importance, and unaccessed,
@@ -52,8 +52,8 @@ information conflicts with old).
 ### S6. Live memory board
 - Given any chat turn,
 - When the engine stores, recalls, decays, or supersedes memories,
-- Then the UI shows each event with the memory content, type, and score — the engine's
-  reasoning is observable, not a black box.
+- Then the UI shows each event with the memory content and kind, plus type and score
+  where applicable — the engine's reasoning is observable, not a black box.
 
 ### S7. MCP surface
 - Given an external MCP client,
@@ -76,9 +76,11 @@ information conflicts with old).
 No other seams; UI is exercised by the demo capture.
 
 ## Acceptance criteria
-- [ ] S1-S4 each covered by unit tests at seam 1 (deterministic, no network).
-- [ ] S2: packer provably never exceeds budget (property-style test over random sets).
-- [ ] S4: adjudicator fake proves both supersede and no-supersede paths.
-- [ ] Live e2e proof: real Qwen call through the deployed chat route.
-- [ ] Memory board shows stored/recalled/decayed/superseded events live.
-- [ ] MCP server round-trip: remember then recall returns the same record.
+- [x] S1-S4 each covered by unit tests at seam 1 (deterministic, no network).
+- [x] S2: packer provably never exceeds budget (property-style test over random sets).
+- [x] S4: adjudicator fake proves both supersede and no-supersede paths.
+- [ ] Live e2e proof: real Qwen call through the deployed chat route. (Proven locally
+      against live Qwen Cloud; deployed-route rerun pending Alibaba Cloud deploy.)
+- [x] Memory board shows stored/recalled/decayed/superseded events live.
+- [x] MCP server round-trip: remember then recall returns the same record
+      (real stdio protocol run: docs/submission/mcp-roundtrip.txt).

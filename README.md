@@ -16,8 +16,9 @@ with three parts most memory demos skip:
 ## What it does
 
 - **Typed memories.** `preference`, `fact`, `skill`, `episode`, each with its own decay
-  half-life. An LLM scores the importance of every candidate memory at write time; low
-  scorers are observed but never stored (the UI shows the decision either way).
+  half-life. An LLM scores the importance of every chat message and consolidation
+  draft at write time; low scorers are observed but never stored (the UI shows the
+  decision either way). MCP writes accept caller-set importance.
 - **Budget-bounded recall.** Every turn, active memories are ranked by a blend of
   embedding similarity (`text-embedding-v4`, 256 dims), retention, importance, and
   access frequency, then greedily packed under a hard token budget (default 800). The
@@ -27,8 +28,8 @@ with three parts most memory demos skip:
   access; important memories decay slower, and every recall refreshes retention.
   Below the floor a memory is marked `decayed`: excluded from recall, never deleted
   (the audit trail survives).
-- **Contradiction adjudication.** On every write, the nearest active memories above a
-  similarity threshold are adjudicated by `qwen3.7-plus` (strict JSON, temperature 0,
+- **Contradiction adjudication.** On every chat and consolidation write, the nearest
+  active memories above a similarity threshold are adjudicated by `qwen3.7-plus` (strict JSON, temperature 0,
   fail-safe parsing: a parser failure never supersedes anything). Conflicting old
   memories are marked `superseded` with a pointer to their replacement.
 - **Session consolidation.** On demand, a session transcript is distilled into typed
@@ -79,10 +80,10 @@ One turn through `/api/chat`:
 pnpm install
 cp .env.example .env.local   # add your Qwen Cloud API key
 pnpm dev                     # http://localhost:3000
-pnpm test                    # 66 unit tests, no network
+pnpm test                    # 67 unit tests, no network
 ```
 
-Docker (what the Alibaba Cloud deployment runs):
+Docker (the image the Alibaba Cloud deployment runs; see Deployment):
 
 ```bash
 docker build --platform linux/amd64 -t engram .
@@ -91,24 +92,31 @@ docker run -p 3000:3000 -e QWEN_CLOUD_API_KEY=... engram
 
 ## Engineering notes
 
-- The engine (`lib/engine/`) is pure TypeScript with injected clock, embedder, and
-  adjudicator: all 66 tests run in milliseconds with zero network. The budget packer
+- The engine core (scoring, budget packing, contradiction logic, distillation
+  parsing) is pure TypeScript with injected clock, embedder, and adjudicator; the
+  store is a thin better-sqlite3 wrapper tested against `:memory:`. All 67 tests run
+  in milliseconds with zero network. The budget packer
   has a property-style test over randomized pools; the adjudicator tests pin both the
   supersede and the no-supersede paths, plus the threshold gate that keeps unrelated
   memories from ever reaching the LLM.
 - All model calls run at temperature 0. Every LLM output that feeds a decision
   (importance, adjudication, distillation) goes through a defensive parser that
   degrades safely on garbage: default importance, never-supersede, empty draft list.
-- The API key lives server-side only. Public endpoints are rate limited (Upstash when
-  configured, in-memory fallback otherwise).
+- The API key lives server-side only. The model-calling endpoints (`/api/chat`,
+  `/api/consolidate`) are rate limited (Upstash when configured, in-memory fallback
+  otherwise); `/api/memories` is a cheap read-only snapshot with no model calls.
 
 ## Demo mode
 
-`/?demo=1` renders a frozen replay so the UI can be captured without racing live
-calls. Every reply, score, and event in it is a real output captured on 2026-07-06
-from live `qwen3.7-plus` + `text-embedding-v4` calls through this app's own
-`/api/chat` route (only the session labels were renamed for display). The demo video
-uses live calls except where noted.
+`/?demo=1` (plus `&scene=fresh|stored|recall|decay`) renders frozen replays so the
+UI can be captured without racing live calls. Every reply, score, and event is a
+real output captured on 2026-07-06 from live `qwen3.7-plus` + `text-embedding-v4`
+calls through this app's own engine paths. Display normalizations are disclosed:
+session labels were renamed, scene timestamps/ids were normalized for display, and
+the decay scene comes from `scripts/capture-decay.ts`, which seeds a BACKDATED
+low-importance memory so the real decay mechanism fires in demo time (retention
+decay needs weeks on the wall clock). The demo video is captured entirely from
+these frozen replay scenes.
 
 ## Honesty and provenance
 

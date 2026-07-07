@@ -1,0 +1,4 @@
+tools: engram_remember, engram_recall, engram_list
+engram_remember -> [{"type":"text","text":"{\n  \"id\": \"9ebb54ba-ea9d-435c-adb8-ce32faa8ebe7\"\n}"}]
+engram_recall -> [{"type":"text","text":"[\n  {\n    \"id\": \"9ebb54ba-ea9d-435c-adb8-ce32faa8ebe7\",\n    \"type\": \"preference\",\n    \"content\": \"The operator prefers pnpm over npm for all JavaScript projects.\",\n    \"score\": 0.6259240785773965\n  }\n]"}]
+engram_list -> [{"type":"text","text":"{\n  \"counts\": {\n    \"active\": 1,\n    \"decayed\": 0,\n    \"superseded\": 0\n  },\n  \"recent\": [\n    {\n      \"id\": \"9ebb54ba-ea9d-435c-adb8-ce32faa8ebe7\",\n      \"type\": \"preference\",\n      \"content\": \"The operator prefers pnpm over npm for all JavaScript projects.\",\n      \"importance\": 0.8,\n      \"createdAt\": 1783399609556,\n      \"accessCount\": 1,\n      \"sessionId\": \"mcp\"\n    }\n  ]\n}"}]
