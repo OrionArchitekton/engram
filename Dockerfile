@@ -1,7 +1,7 @@
 # Build with: docker build --platform linux/amd64 -t engram .
 FROM node:20-slim AS builder
 WORKDIR /app
-RUN corepack enable
+RUN npm install -g pnpm@9
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY . .
