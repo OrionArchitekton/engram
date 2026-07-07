@@ -1,4 +1,4 @@
-import { DEMO_FIXTURE } from "@/lib/demo-fixture";
+import { DEMO_FIXTURE, DEMO_SCENES } from "@/lib/demo-fixture";
 import EngramApp from "./EngramApp";
 
 export default async function Page({
@@ -8,5 +8,6 @@ export default async function Page({
 }) {
   const params = await searchParams;
   const demo = params.demo === "1";
-  return <EngramApp fixture={demo ? DEMO_FIXTURE : null} />;
+  const scene = typeof params.scene === "string" ? DEMO_SCENES[params.scene] : undefined;
+  return <EngramApp fixture={demo ? (scene ?? DEMO_FIXTURE) : null} />;
 }

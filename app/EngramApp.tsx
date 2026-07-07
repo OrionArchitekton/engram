@@ -30,7 +30,7 @@ const TYPE_STYLE: Record<string, string> = {
 function EventChip({ ev }: { ev: MemoryEvent }) {
   const s = EVENT_STYLE[ev.kind];
   return (
-    <div className={`engram-event-enter rounded-md border px-3 py-2 text-xs ${s.cls}`}>
+    <div data-kind={ev.kind} className={`engram-event-enter rounded-md border px-3 py-2 text-xs ${s.cls}`}>
       <div className="flex items-center gap-2">
         <span className="font-semibold tracking-wide">{s.label}</span>
         {ev.type && <span className="opacity-70">{ev.type}</span>}

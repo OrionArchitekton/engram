@@ -1,0 +1,7 @@
+{
+  "script": "/home/orion/src/orion-estate/personal-brand/hackathons/engram/demo/DEMO_SCRIPT.md",
+  "dashboardBaseUrl": "http://localhost:3111",
+  "out": "/home/orion/src/orion-estate/personal-brand/hackathons/engram/demo/out",
+  "resolution": { "width": 1920, "height": 1080 },
+  "fps": 30
+}
