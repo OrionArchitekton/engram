@@ -1,0 +1,7 @@
+file '/home/orion/src/orion-estate/personal-brand/hackathons/engram/demo/out/audio/pad_0.mp3'
+file '/home/orion/src/orion-estate/personal-brand/hackathons/engram/demo/out/audio/pad_1.mp3'
+file '/home/orion/src/orion-estate/personal-brand/hackathons/engram/demo/out/audio/pad_2.mp3'
+file '/home/orion/src/orion-estate/personal-brand/hackathons/engram/demo/out/audio/pad_3.mp3'
+file '/home/orion/src/orion-estate/personal-brand/hackathons/engram/demo/out/audio/pad_4.mp3'
+file '/home/orion/src/orion-estate/personal-brand/hackathons/engram/demo/out/audio/pad_5.mp3'
+file '/home/orion/src/orion-estate/personal-brand/hackathons/engram/demo/out/audio/pad_6.mp3'

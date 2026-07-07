@@ -3,5 +3,7 @@
   "dashboardBaseUrl": "http://localhost:3111",
   "out": "/home/orion/src/orion-estate/personal-brand/hackathons/engram/demo/out",
   "resolution": { "width": 1920, "height": 1080 },
-  "fps": 30
+  "fps": 30,
+  "theme": { "captionFont": "Arial", "captionSize": 15, "cursor": true, "captionBox": true, "captionMarginV": 26 },
+  "captureCss": "html { font-size: 20px; }"
 }
