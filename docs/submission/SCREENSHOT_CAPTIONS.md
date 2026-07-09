@@ -11,3 +11,6 @@
 
 4. 02-session-a.png
    Where it started: session A stores the preference as a typed memory with an LLM-scored importance of 1.00.
+
+5. 05-live-on-alibaba.png
+   The same engine running live on Alibaba Cloud Function Compute at engram.orionbot.online.
