@@ -80,8 +80,9 @@ parser that degrades safely (a parse failure can never supersede a memory).
   fact in the UI, live.
 - A hard recall budget with a property test over randomized memory pools.
 - The engine proven live end to end: cross-session recall and a contradiction
-  supersede both demonstrated against real Qwen Cloud calls through the deployed
-  HTTP route.
+  supersede both demonstrated against real Qwen Cloud calls through the DEPLOYED
+  public route on Alibaba Cloud Function Compute, with x-fc-request-id bindings
+  (docs/submission/alibaba-deploy-proof.md).
 
 ## What we learned
 
@@ -104,9 +105,9 @@ tailwindcss, vitest
 
 ## Links
 
-- Live demo: TODO after deploy (engram.orionbot.online)
+- Live demo: https://engram.orionbot.online
 - Code repository: https://github.com/OrionArchitekton/engram
-- Alibaba Cloud proof: TODO code-file link + recording after deploy
+- Alibaba Cloud proof: https://github.com/OrionArchitekton/engram/blob/main/docs/submission/alibaba-deploy-proof.md (code file: lib/qwen.ts targets dashscope-intl.aliyuncs.com)
 - Demo video: TODO YouTube URL
 
 ## Screenshots

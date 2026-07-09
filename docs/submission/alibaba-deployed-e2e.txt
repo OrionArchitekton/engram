@@ -1,0 +1,18 @@
+=== ENGRAM DEPLOYED-ROUTE E2E 2026-07-09T17:36:06Z ===
+--- turn 1: session pub-a stores preference ---
+HTTP/2 200 
+x-fc-request-id: 1-6a4fdc07-01b90c-29927e7a530a
+access-control-expose-headers: Date,x-fc-request-id
+{"reply":"Understood. I will use TypeScript with strict mode enabled for all new services and code we work on.","events":[{"kind":"stored","memoryId":"7b4c075f-5850-41a7-a20c-00b312751540","content":"I prefer TypeScript with strict mode for all new services.","type":"fact","score":1}]}
+--- turn 2: fresh session pub-b cross-session recall ---
+HTTP/2 200 
+x-fc-request-id: 1-6a4fdc27-0105a9-c89f6a71a01a
+access-control-expose-headers: Date,x-fc-request-id
+{"reply":"You should use TypeScript with strict mode.","events":[{"kind":"recalled","memoryId":"7b4c075f-5850-41a7-a20c-00b312751540","content":"I prefer TypeScript with strict mode for all new services.","type":"fact","score":0.7300127346414047},{"kind":"skipped","memoryId":"","content":"Which language should I use for my new microservice?","score":0,"detail":"importance 0.00 below 0.3"}]}
+--- turn 3: contradiction ---
+HTTP/2 200 
+x-fc-request-id: 1-6a4fdc41-0132f2-a2ddbcab8400
+access-control-expose-headers: Date,x-fc-request-id
+{"reply":"Got it. I'll use Python for all new services going forward.","events":[{"kind":"recalled","memoryId":"7b4c075f-5850-41a7-a20c-00b312751540","content":"I prefer TypeScript with strict mode for all new services.","type":"fact","score":0.7353935229406736},{"kind":"superseded","memoryId":"7b4c075f-5850-41a7-a20c-00b312751540","content":"I prefer TypeScript with strict mode for all new services.","type":"fact","detail":"replaced by 0b0143ef"},{"kind":"stored","memoryId":"0b0143ef-9327-4885-99b7-42897b35296b","content":"Actually, I now prefer Python for all new services.","type":"fact","score":1}]}
+--- board ---
+{"counts":{"active":1,"decayed":0,"superseded":1},"memories":[{"id":"0b0143ef-9327-4885-99b7-42897b35296b","type":"fact","content":"Actually, I now prefer Python for all new services.","importance":1,"status":"active","supersededBy":null,"createdAt":1783618625133,"lastAccessedAt":1783618625133,"accessCount":0,"sessionId":"pub-b","retention":1},{"id":"7b4c075f-5850-41a7-a20c-00b312751540","type":"fact","content":"I prefer TypeScript with strict mode for all new services.","importance":1,"status":"superseded","supersededBy":"0b0143ef-9327-4885-99b7-42897b35296b","createdAt":1783618567317,"lastAccessedAt":1783618625133,"accessCount":2,"sessionId":"pub-a","retention":1}]}

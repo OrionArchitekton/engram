@@ -65,7 +65,8 @@ information conflicts with old).
 - Qwen models on Qwen Cloud only (chat: qwen3.7-plus tier; embeddings: text-embedding-v4),
   OpenAI-compatible endpoint. temperature 0 for demo-stable output.
 - API key server-side only. Public endpoint rate-limited.
-- Backend deployed on Alibaba Cloud (hackathon requirement) with proof artifacts.
+- Backend deployed on Alibaba Cloud (hackathon requirement) with proof artifacts:
+  docs/submission/alibaba-deploy-proof.md.
 - Memories persist in SQLite; embeddings stored alongside content.
 - All engine logic pure and unit-testable with injected clock, embedder, and adjudicator.
 
@@ -79,8 +80,8 @@ No other seams; UI is exercised by the demo capture.
 - [x] S1-S4 each covered by unit tests at seam 1 (deterministic, no network).
 - [x] S2: packer provably never exceeds budget (property-style test over random sets).
 - [x] S4: adjudicator fake proves both supersede and no-supersede paths.
-- [ ] Live e2e proof: real Qwen call through the deployed chat route. (Proven locally
-      against live Qwen Cloud; deployed-route rerun pending Alibaba Cloud deploy.)
+- [x] Live e2e proof: real Qwen call through the deployed chat route
+      (docs/submission/alibaba-deployed-e2e.txt, 2026-07-09, x-fc-request-id bound).
 - [x] Memory board shows stored/recalled/decayed/superseded events live.
 - [x] MCP server round-trip: remember then recall returns the same record
       (real stdio protocol run: docs/submission/mcp-roundtrip.txt).

@@ -83,7 +83,7 @@ pnpm dev                     # http://localhost:3000
 pnpm test                    # 67 unit tests, no network
 ```
 
-Docker (the image the Alibaba Cloud deployment runs; see Deployment):
+Docker (the image the Alibaba Cloud deployment runs; proof in docs/submission/alibaba-deploy-proof.md):
 
 ```bash
 docker build --platform linux/amd64 -t engram .
@@ -117,6 +117,16 @@ the decay scene comes from `scripts/capture-decay.ts`, which seeds a BACKDATED
 low-importance memory so the real decay mechanism fires in demo time (retention
 decay needs weeks on the wall clock). The demo video is captured entirely from
 these frozen replay scenes.
+
+## Deployment
+
+The backend is live on Alibaba Cloud Function Compute 3.0 (Singapore) as a
+custom-container web function behind https://engram.orionbot.online, with the image
+hosted in Alibaba Cloud Container Registry. The full deployed-route end-to-end proof
+(cross-session recall + contradiction supersede against live Qwen Cloud, with
+x-fc-request-id bindings) is in
+[docs/submission/alibaba-deploy-proof.md](docs/submission/alibaba-deploy-proof.md).
+The instance stores memories in `/tmp` SQLite; instance recycling resets the store.
 
 ## Honesty and provenance
 
