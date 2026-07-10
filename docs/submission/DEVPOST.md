@@ -108,7 +108,7 @@ tailwindcss, vitest
 - Live demo: https://engram.orionbot.online
 - Code repository: https://github.com/OrionArchitekton/engram
 - Alibaba Cloud proof: https://github.com/OrionArchitekton/engram/blob/main/docs/submission/alibaba-deploy-proof.md (code file: lib/qwen.ts targets dashscope-intl.aliyuncs.com)
-- Demo video: TODO YouTube URL
+- Demo video: https://youtu.be/MWBz4cQEByc
 
 ## Screenshots
 
