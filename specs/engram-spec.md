@@ -61,6 +61,24 @@ information conflicts with old).
 - Then it operates on the same store as the web agent, making Engram an embeddable
   memory backend, not just a demo app.
 
+### S8. Visitor isolation on the public demo
+- Given two visitors using the public demo at the same time,
+- When either one reads the memory board, chats, or consolidates a session,
+- Then each sees, recalls, decays, and supersedes only memories in their own memory
+  scope: the board lists only their memories and counts, recall never surfaces the
+  other visitor's memories (in events or in the model prompt), and a contradicting
+  statement never supersedes another visitor's memory.
+- A memory scope is a random id minted per browser tab and sent as the session id.
+  The session a/b/c tabs are chat contexts inside one scope, which is what keeps S1
+  cross-session recall working for a single visitor.
+- No valid session id means no memory content: a request without one, or with any
+  id not shaped like a 128-bit random id (such as the shared "session-a" label every
+  visitor used before), is rejected rather than served a global view. The server can
+  check the shape, not the randomness; a client choosing a weak id only exposes itself.
+- The MCP surface (S7) is a local, single-operator process and is not scoped: MCP
+  recall and list read every scope, while MCP writes land in a scope no web visitor can
+  claim. Never point MCP at the deployed database.
+
 ## Constraints
 - Qwen models on Qwen Cloud only (chat: qwen3.7-plus tier; embeddings: text-embedding-v4),
   OpenAI-compatible endpoint. temperature 0 for demo-stable output.
@@ -74,6 +92,8 @@ information conflicts with old).
 1. **Engine module boundary** (primary): pure functions over injected `now`, embedder,
    and adjudicator fakes — retrieval scoring, budget packing, decay, supersede graph.
 2. **HTTP chat route** (integration): one live end-to-end proof against Qwen Cloud.
+3. **HTTP route handlers** (S8): board, chat, and consolidate handlers driven with an
+   in-memory store and a faked model, asserting what one visitor can observe of another.
 No other seams; UI is exercised by the demo capture.
 
 ## Acceptance criteria
@@ -82,6 +102,13 @@ No other seams; UI is exercised by the demo capture.
 - [x] S4: adjudicator fake proves both supersede and no-supersede paths.
 - [x] Live e2e proof: real Qwen call through the deployed chat route
       (docs/submission/alibaba-deployed-e2e.txt, 2026-07-09, x-fc-request-id bound).
+      Recorded before S8: its pub-a/pub-b ids are now rejected, and cross-session
+      recall now means two chat tabs sharing one scope id.
 - [x] Memory board shows stored/recalled/decayed/superseded events live.
 - [x] MCP server round-trip: remember then recall returns the same record
       (real stdio protocol run: docs/submission/mcp-roundtrip.txt).
+- [ ] S8: a board read without a valid session id is rejected (400) with no memory content.
+- [ ] S8: one visitor's board, counts, recall events, model prompt, decay events, and
+      supersede decisions never include another visitor's memories (negative control),
+      while the visitor's own memories still appear (positive control).
+- [ ] S8: the deployed demo rejects an unscoped board read and isolates two live sessions.

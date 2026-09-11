@@ -8,6 +8,10 @@ import { MemoryStore } from "../lib/engine/store";
 import { embed } from "../lib/qwen";
 
 const DAY = 24 * 60 * 60 * 1000;
+// One memory scope for the whole capture: recall and decay only ever see the
+// scope's own memories, the same way a visitor's chat tabs share one scope.
+// Deliberately shorter than a web scope id, so no web visitor can ever claim it.
+const SCOPE = "capture-decay";
 
 async function main() {
   const dbPath = process.env.ENGRAM_DB || "./decay-capture.db";
@@ -25,7 +29,7 @@ async function main() {
     createdAt: now - 120 * DAY,
     lastAccessedAt: now - 120 * DAY,
     accessCount: 0,
-    sessionId: "session-a",
+    sessionId: SCOPE,
     status: "active",
     supersededBy: null,
   });
@@ -41,12 +45,12 @@ async function main() {
     createdAt: now - 2 * 60 * 60 * 1000,
     lastAccessedAt: now - 2 * 60 * 60 * 1000,
     accessCount: 2,
-    sessionId: "session-a",
+    sessionId: SCOPE,
     status: "active",
     supersededBy: null,
   });
 
-  const result = await runTurn(store, "session-c", "What did I say about code style?", []);
+  const result = await runTurn(store, SCOPE, "What did I say about code style?", []);
   console.log(JSON.stringify({ result, all: store.all() }, null, 2));
 }
 

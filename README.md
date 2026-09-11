@@ -80,7 +80,7 @@ One turn through `/api/chat`:
 pnpm install
 cp .env.example .env.local   # add your Qwen Cloud API key
 pnpm dev                     # http://localhost:3000
-pnpm test                    # 67 unit tests, no network
+pnpm test                    # 84 tests (67 engine + 17 route isolation), no network
 ```
 
 Docker (the image the Alibaba Cloud deployment runs; proof in docs/submission/alibaba-deploy-proof.md):
@@ -94,8 +94,8 @@ docker run -p 3000:3000 -e QWEN_CLOUD_API_KEY=... engram
 
 - The engine core (scoring, budget packing, contradiction logic, distillation
   parsing) is pure TypeScript with injected clock, embedder, and adjudicator; the
-  store is a thin better-sqlite3 wrapper tested against `:memory:`. All 67 tests run
-  in milliseconds with zero network. The budget packer
+  store is a thin better-sqlite3 wrapper tested against `:memory:`. All 84 tests (67
+  engine, 17 route-level visitor-isolation) run in milliseconds with zero network. The budget packer
   has a property-style test over randomized pools; the adjudicator tests pin both the
   supersede and the no-supersede paths, plus the threshold gate that keeps unrelated
   memories from ever reaching the LLM.
@@ -105,6 +105,12 @@ docker run -p 3000:3000 -e QWEN_CLOUD_API_KEY=... engram
 - The API key lives server-side only. The model-calling endpoints (`/api/chat`,
   `/api/consolidate`) are rate limited (Upstash when configured, in-memory fallback
   otherwise); `/api/memories` is a cheap read-only snapshot with no model calls.
+- Visitors are isolated. The browser mints a random 128-bit memory scope per tab
+  session (kept in sessionStorage) and sends it as `sessionId`; the board, recall,
+  decay, and supersede only ever see that scope's memories. Every endpoint rejects a
+  missing or malformed id (anything but 32 lowercase hex chars) with a 400 instead of
+  falling back to a global view. The server checks the id's shape; isolation relies on
+  the client minting it at random.
 
 ## Demo mode
 

@@ -49,3 +49,8 @@ contradiction supersede with an audit pointer, plus the resulting board state.
 Note: the function stores memories in SQLite at `/tmp/engram.db` inside the instance;
 FC instance recycling resets that store, which is acceptable and disclosed for a demo
 deployment.
+
+Addendum (2026-09-11): the transcript above predates visitor isolation (spec S8). The
+deployed API now requires a 32-char hex `sessionId` per browser tab session, so the
+recorded `pub-a` / `pub-b` requests would be rejected today; cross-session recall is two
+chat tabs that share one scope id.
