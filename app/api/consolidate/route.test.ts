@@ -79,6 +79,7 @@ describe("POST /api/consolidate", () => {
     expect(res.status).toBe(200);
     expect(text).toContain("User lives in Austin");
     expect(text).not.toContain("Denver");
+    expect(JSON.stringify(qwen.chat.mock.calls)).not.toContain("Denver");
     expect(store.get("a-denver")?.status).toBe("active");
   });
 });

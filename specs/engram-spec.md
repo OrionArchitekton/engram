@@ -68,7 +68,8 @@ information conflicts with old).
   scope: the board lists only their memories and counts, recall never surfaces the
   other visitor's memories (in events or in the model prompt), and a contradicting
   statement never supersedes another visitor's memory.
-- A memory scope is a random id minted per browser tab and sent as the session id.
+- A memory scope is a random id minted per browser tab session and sent as the session
+  id (a reload keeps it; a duplicated tab inherits it, as it does all tab session state).
   The session a/b/c tabs are chat contexts inside one scope, which is what keeps S1
   cross-session recall working for a single visitor.
 - No valid session id means no memory content: a request without one, or with any
@@ -76,8 +77,9 @@ information conflicts with old).
   visitor used before), is rejected rather than served a global view. The server can
   check the shape, not the randomness; a client choosing a weak id only exposes itself.
 - The MCP surface (S7) is a local, single-operator process and is not scoped: MCP
-  recall and list read every scope, while MCP writes land in a scope no web visitor can
-  claim. Never point MCP at the deployed database.
+  recall and list read every scope. MCP writes default to the "mcp" scope, which no web
+  visitor can claim, though an MCP caller may pass any session id explicitly. Never
+  point MCP at the deployed database.
 
 ## Constraints
 - Qwen models on Qwen Cloud only (chat: qwen3.7-plus tier; embeddings: text-embedding-v4),
