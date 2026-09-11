@@ -1,0 +1,43 @@
+# S8 visitor isolation: deployed-route proof (2026-09-11)
+
+Deployed build: merge commit 197f9fc (PR #1), image
+crpi-woamps056vghzrls.ap-southeast-1.personal.cr.aliyuncs.com/engram-dm/engram-web:v3
+@ sha256:728bae33ff2930b12a721ccff1566946af0539b8ef852df1a8b7c6e857fdfa67, rolled out to the
+FC 3.0 function `engram` (ap-southeast-1) as an image-only update; lastUpdateStatus
+Successful at 2026-09-11T19:28:02Z. Every response below carries an x-fc-request-id issued
+by Function Compute. Visitor scope ids are redacted to prefix...suffix: each is a bearer
+scope, even for test data. The stored memory is a deliberate, non-personal test fact.
+
+## 2026-09-11T19:28:17Z live checks, engram.orionbot.online, image engram-web:v3 @ sha256:728bae33
+
+$ curl -sS -i 'https://engram.orionbot.online/api/memories'
+HTTP/2 400 
+x-fc-request-id: 1-6aa45653-01675f-2c9ee41fab93
+{"error":"sessionId is required."}
+
+$ curl -sS -i 'https://engram.orionbot.online/api/memories?sessionId=session-a'
+HTTP/2 400 
+x-fc-request-id: 1-6aa45653-019046-7c4fe84ad565
+{"error":"sessionId is required."}
+
+## live UI: visitor A (60f6e1ae...8ea2) stored 'My test project codename is HERON and I always deploy on Fridays.'; visitor B (acccb9c3...5d2e) is a fresh tab
+
+$ curl -sS -i 'https://engram.orionbot.online/api/memories?sessionId=acccb9c3...5d2e'   # visitor B reads (negative control)
+HTTP/2 200 
+x-fc-request-id: 1-6aa45698-01675f-2ec3f99af2d1
+cache-control: private, no-store
+{"counts":{"active":0,"decayed":0,"superseded":0},"memories":[]}
+
+$ curl -sS -i 'https://engram.orionbot.online/api/memories?sessionId=60f6e1ae...8ea2'   # visitor A reads (positive control)
+HTTP/2 200 
+x-fc-request-id: 1-6aa45698-019046-da07fa8cc480
+cache-control: private, no-store
+{"counts":{"active":1,"decayed":0,"superseded":0},"memories":[{"id":"9538e645-48e9-4cc9-8f0e-c95ec934310e","type":"fact","content":"My test project codename is HERON and I always deploy on Fridays.","importance":1,"status":"active","supersededBy":null,"createdAt":1789154913045,"lastAccessedAt":1789154913045,"accessCount":0,"sessionId":"60f6e1ae...8ea2","retention":1}]}
+
+## live UI, chat path (real qwen3.7-plus through the deployed /api/chat)
+- visitor B asked "What is my test project codename, and which day do I deploy?"
+  reply: "I don't know your test project codename or deployment day. I don't have any stored memories or information about you yet."
+  events: [skipped]  (no recall event; "HERON" absent from the whole page)
+- visitor A opened a fresh "session b" chat tab and asked the same question
+  reply: "Your test project codename is HERON, and you deploy on Fridays."
+  events: RECALLED fact 0.83 "My test project codename is HERON and I always deploy on Fridays."  (spec S1 intact)

@@ -53,5 +53,6 @@ deployment.
 Addendum (2026-09-11): the transcript above predates visitor isolation (spec S8, PR #1).
 Once that change is deployed, the API requires a 32-char hex `sessionId` per browser tab
 session, so the recorded `pub-a` / `pub-b` requests would be rejected, and cross-session
-recall becomes two chat tabs that share one scope id. The deployed-route proof of S8 is
-recorded separately once the redeploy is verified live.
+recall becomes two chat tabs that share one scope id. That change is deployed as image
+`engram-web:v3` (sha256:728bae33...), and its deployed-route proof is
+[s8-visitor-isolation-live.txt](s8-visitor-isolation-live.txt).
