@@ -20,6 +20,32 @@ const EVENT_STYLE: Record<MemoryEvent["kind"], { label: string; cls: string }> =
   skipped: { label: "NOT STORED", cls: "bg-zinc-700/20 text-zinc-500 border-zinc-600/30" },
 };
 
+const VISITOR_KEY = "engram.visitorId";
+
+/**
+ * The memory scope this browser tab owns, sent to the API as `sessionId`: 128
+ * random bits, kept in sessionStorage so a reload keeps its memories while other
+ * visitors (and freshly opened tabs; "Duplicate tab" copies sessionStorage) get their
+ * own. The session a/b tabs are chat contexts within it, which is what lets memories
+ * carry across them.
+ */
+function loadVisitorId(): string {
+  try {
+    const saved = sessionStorage.getItem(VISITOR_KEY);
+    if (saved && /^[0-9a-f]{32}$/.test(saved)) return saved;
+  } catch {
+    // storage blocked: fall through to a per-page-load id
+  }
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  const id = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  try {
+    sessionStorage.setItem(VISITOR_KEY, id);
+  } catch {
+    // not persisted; the ref in EngramApp still keeps it stable for this page load
+  }
+  return id;
+}
+
 const TYPE_STYLE: Record<string, string> = {
   preference: "bg-violet-500/15 text-violet-300",
   fact: "bg-sky-500/15 text-sky-300",
@@ -90,19 +116,23 @@ export default function EngramApp({ fixture }: { fixture: DemoFixture | null }) 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const chatEnd = useRef<HTMLDivElement>(null);
+  const visitor = useRef<string | null>(null);
 
   const demo = fixture !== null;
   const sessionIds = Object.keys(sessions);
   const turns = sessions[active] ?? [];
 
+  // Resolved lazily in effects/handlers only: sessionStorage does not exist during SSR.
+  const scopeId = useCallback(() => (visitor.current ??= loadVisitorId()), []);
+
   const refreshBoard = useCallback(async () => {
     try {
-      const res = await fetch("/api/memories");
+      const res = await fetch(`/api/memories?sessionId=${encodeURIComponent(scopeId())}`);
       if (res.ok) setBoard(await res.json());
     } catch {
       // board refresh is cosmetic; never break chat on it
     }
-  }, []);
+  }, [scopeId]);
 
   useEffect(() => {
     if (!demo) void refreshBoard();
@@ -123,7 +153,7 @@ export default function EngramApp({ fixture }: { fixture: DemoFixture | null }) 
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId: active, message, history: turns }),
+        body: JSON.stringify({ sessionId: scopeId(), message, history: turns }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -151,7 +181,7 @@ export default function EngramApp({ fixture }: { fixture: DemoFixture | null }) 
       const res = await fetch("/api/consolidate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId: active, turns }),
+        body: JSON.stringify({ sessionId: scopeId(), turns }),
       });
       const data = await res.json();
       if (!res.ok) {

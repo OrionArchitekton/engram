@@ -48,12 +48,13 @@ const adjudicator = async (newContent: string, oldContent: string) => {
 };
 
 /**
- * Persist forgetting: any active memory whose retention has fallen below the
- * floor is marked decayed (recoverable in the store, invisible to recall).
+ * Persist forgetting: any active memory in this session whose retention has
+ * fallen below the floor is marked decayed (recoverable in the store, invisible
+ * to recall). Scoped so one session's turn never touches or reports another's.
  */
-export function sweepDecay(store: MemoryStore, now: number): MemoryEvent[] {
+export function sweepDecay(store: MemoryStore, sessionId: string, now: number): MemoryEvent[] {
   const events: MemoryEvent[] = [];
-  for (const m of store.allActive()) {
+  for (const m of store.allActiveInSession(sessionId)) {
     if (retention(m, now) < FORGET_FLOOR) {
       store.markDecayed(m.id);
       events.push({ kind: "decayed", memoryId: m.id, content: m.content, type: m.type });
@@ -72,7 +73,12 @@ async function writeMemory(
 ): Promise<MemoryEvent[]> {
   const events: MemoryEvent[] = [];
   const [embedding] = await embed([content]);
-  const { supersededIds } = await findSuperseded(content, embedding, store.allActive(), adjudicator);
+  const { supersededIds } = await findSuperseded(
+    content,
+    embedding,
+    store.allActiveInSession(sessionId),
+    adjudicator,
+  );
   const record: MemoryRecord = {
     id: randomUUID(),
     type,
@@ -120,10 +126,13 @@ export async function runTurn(
   now: number = Date.now(),
 ): Promise<TurnResult> {
   const events: MemoryEvent[] = [];
-  events.push(...sweepDecay(store, now));
+  events.push(...sweepDecay(store, sessionId, now));
 
   const [queryEmbedding] = await embed([userMessage]);
-  const recalled = recall(store.allActive(), queryEmbedding, { budget: RECALL_BUDGET, now });
+  const recalled = recall(store.allActiveInSession(sessionId), queryEmbedding, {
+    budget: RECALL_BUDGET,
+    now,
+  });
   store.refreshAccess(recalled.selected.map((s) => s.record.id), now);
   for (const s of recalled.selected) {
     events.push({

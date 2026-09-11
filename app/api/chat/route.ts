@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { runTurn, type ChatTurn } from "@/lib/agent";
 import { getStore } from "@/lib/db";
 import { checkRateLimit } from "@/lib/ratelimit";
+import { parseSessionId } from "@/lib/session";
 
 export const runtime = "nodejs";
 
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const sessionId = typeof body.sessionId === "string" ? body.sessionId.slice(0, 64) : "";
+  const sessionId = parseSessionId(body.sessionId);
   const message = typeof body.message === "string" ? body.message.trim() : "";
   if (!sessionId || !message) {
     return NextResponse.json({ error: "sessionId and message are required." }, { status: 400 });

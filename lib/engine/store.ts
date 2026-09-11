@@ -15,6 +15,16 @@ interface MemoryRow {
   superseded_by: string | null;
 }
 
+type StatusCounts = { active: number; decayed: number; superseded: number };
+
+function tally(rows: { status: string; n: number }[]): StatusCounts {
+  const result: StatusCounts = { active: 0, decayed: 0, superseded: 0 };
+  for (const row of rows) {
+    if (row.status in result) result[row.status as MemoryStatus] = row.n;
+  }
+  return result;
+}
+
 function toRecord(row: MemoryRow): MemoryRecord {
   return {
     id: row.id,
@@ -96,10 +106,28 @@ export class MemoryStore {
     return rows.map(toRecord);
   }
 
+  /** Active memories owned by one session: the only pool a web turn may recall or supersede. */
+  allActiveInSession(sessionId: string): MemoryRecord[] {
+    const rows = this.db
+      .prepare(
+        "SELECT * FROM memories WHERE session_id = ? AND status = 'active' ORDER BY created_at, id",
+      )
+      .all(sessionId) as MemoryRow[];
+    return rows.map(toRecord);
+  }
+
   all(): MemoryRecord[] {
     const rows = this.db
       .prepare("SELECT * FROM memories ORDER BY created_at, id")
       .all() as MemoryRow[];
+    return rows.map(toRecord);
+  }
+
+  /** Every memory owned by one session, any status. Web routes read through this, never all(). */
+  allInSession(sessionId: string): MemoryRecord[] {
+    const rows = this.db
+      .prepare("SELECT * FROM memories WHERE session_id = ? ORDER BY created_at, id")
+      .all(sessionId) as MemoryRow[];
     return rows.map(toRecord);
   }
 
@@ -126,15 +154,23 @@ export class MemoryStore {
     run(ids);
   }
 
-  counts(): { active: number; decayed: number; superseded: number } {
-    const rows = this.db
-      .prepare("SELECT status, COUNT(*) AS n FROM memories GROUP BY status")
-      .all() as { status: string; n: number }[];
-    const result = { active: 0, decayed: 0, superseded: 0 };
-    for (const row of rows) {
-      if (row.status in result) result[row.status as MemoryStatus] = row.n;
-    }
-    return result;
+  counts(): StatusCounts {
+    return tally(
+      this.db
+        .prepare("SELECT status, COUNT(*) AS n FROM memories GROUP BY status")
+        .all() as { status: string; n: number }[],
+    );
+  }
+
+  /** Status counts for one session only, so the board cannot leak other sessions' volume. */
+  countsInSession(sessionId: string): StatusCounts {
+    return tally(
+      this.db
+        .prepare(
+          "SELECT status, COUNT(*) AS n FROM memories WHERE session_id = ? GROUP BY status",
+        )
+        .all(sessionId) as { status: string; n: number }[],
+    );
   }
 
   close(): void {
