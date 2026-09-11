@@ -105,12 +105,15 @@ No other seams; UI is exercised by the demo capture.
 - [x] Live e2e proof: real Qwen call through the deployed chat route
       (docs/submission/alibaba-deployed-e2e.txt, 2026-07-09, x-fc-request-id bound).
       Recorded before S8: its pub-a/pub-b ids are now rejected, and cross-session
-      recall now means two chat tabs sharing one scope id.
+      recall now means two chat tabs sharing one scope id. Re-proven on the deployed S8
+      build, including cross-tab recall through the live chat route
+      (docs/submission/s8-visitor-isolation-live.txt, 2026-09-11, x-fc-request-id bound).
 - [x] Memory board shows stored/recalled/decayed/superseded events live.
 - [x] MCP server round-trip: remember then recall returns the same record
       (real stdio protocol run: docs/submission/mcp-roundtrip.txt).
-- [ ] S8: a board read without a valid session id is rejected (400) with no memory content.
-- [ ] S8: one visitor's board, counts, recall events, model prompt, decay events, and
+- [x] S8: a board read without a valid session id is rejected (400) with no memory content.
+- [x] S8: one visitor's board, counts, recall events, model prompt, decay events, and
       supersede decisions never include another visitor's memories (negative control),
       while the visitor's own memories still appear (positive control).
-- [ ] S8: the deployed demo rejects an unscoped board read and isolates two live sessions.
+- [x] S8: the deployed demo rejects an unscoped board read and isolates two live sessions
+      (docs/submission/s8-visitor-isolation-live.txt, 2026-09-11).
